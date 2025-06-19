@@ -1,6 +1,5 @@
-import { Store , UserId, Chat } from "./store";
+import { Chat, Store, UserId } from "./store";
 let globalChatId = 0;
-
 
 export interface Room {
     roomId: string;
@@ -8,69 +7,61 @@ export interface Room {
 }
 
 export class InMemoryStore implements Store {
-
-    private store: Map<string,Room> 
+    private store: Map<string, Room>;
 
     constructor() {
-        this.store = new Map<string , Room>()
+        this.store = new Map<string, Room>()
     }
 
-    initRoom(roomId: string){
-
-        this.store.set(roomId,{
+    initRoom(roomId: string) {
+        this.store.set(roomId, {
             roomId,
             chats: []
         });
     }
 
-    // last 50 chats  => limit = 50 and offset = 0
-    // limit = 50 and offset = 50;
-    getChats(roomId : string , limit: number , offset: number) {
-
-        const room =  this.store.get(roomId);
-
-        if(!room)
-        {
-            return [];
+    getChats(roomId: string, limit: number, offset: number) {
+        const room = this.store.get(roomId);
+        if (!room) {
+            return []
         }
-
-        return room.chats.reverse().slice(0 , offset).slice(-1 * limit);
+        return room.chats.reverse().slice(0, offset).slice(-1 * limit);
     }
 
-    addChat(userId: UserId , name : string , roomId: string , message: string){
+    addChat(userId: UserId, name: string, roomId: string, message: string) {
+        
+        if(!this.store.get(roomId)){
+            this.initRoom(roomId);
+        }
 
         const room = this.store.get(roomId);
+        if (!room) {
+            return null
+        }
 
-        if(!room) return [];
-        
-        room.chats.push({
+        const chat = {
             id: (globalChatId++).toString(),
             userId,
             name,
             message,
             upvotes: []
-        })
+        }
+        room.chats.push(chat)
+        return chat;
     }
 
-   
-    upvote( userId: UserId, roomId: string , chatId: string) {
-
+    upvote(userId: UserId, roomId: string, chatId: string) {
         const room = this.store.get(roomId);
-
-        if(!room)
-        {
-            return
+        if (!room) {
+            return 
         }
-        
-        // to make this faster 
-      
+        // Todo: Make this faster
         const chat = room.chats.find(({id}) => id === chatId);
 
-        if(chat)
-        {
+        if (chat) {
             chat.upvotes.push(userId);
         }
-
+        return chat;
     }
 
 }

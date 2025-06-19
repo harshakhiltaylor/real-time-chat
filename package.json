@@ -11,6 +11,7 @@
   "description": "",
   "dependencies": {
     "@types/websocket": "^1.0.10",
-    "websocket": "^1.0.35"
+    "websocket": "^1.0.35",
+    "zod": "^3.25.67"
   }
 }
